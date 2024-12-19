@@ -12,12 +12,13 @@ import markdown
 import re
 from weasyprint import HTML
 import time as time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (optional for local dev)
+load_dotenv()
 
 # Set your API keys
-secrets_path = "./secrets.json"
-with open(secrets_path, "r") as f:
-    secrets = json.load(f)
-CLAUDE_KEY = secrets["CLAUDE_KEY"]
+CLAUDE_KEY = os.getenv("CLAUDE_KEY_SW")
 url = 'https://api.anthropic.com/v1/messages'
 headers = {
     'Content-Type': 'application/json',

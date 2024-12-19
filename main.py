@@ -1,16 +1,22 @@
-
-
 import streamlit as st
 from streamlit_google_auth import Authenticate
 import json
 import time
 from PIL import Image
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (optional for local dev)
+load_dotenv()
 
 
-secrets_path = "./secrets.json"
-with open(secrets_path, "r") as f:
-    secrets = json.load(f)
-CLAUDE_KEY = secrets["CLAUDE_KEY"]
+
+
+
+
+
+
+
 
 
 
@@ -61,21 +67,70 @@ def get_role(email):
     return None
 
 
-# def get_role(email):
-    # return users.get(email, None)
-    
+
+
+# Get secrets from environment variables
+CLAUDE_KEY = os.getenv("CLAUDE_KEY_SW")
+if not CLAUDE_KEY:
+    st.error("CLAUDE_KEY is not set. Please set it as an environment variable.")
+    st.stop()
+
+
+# Retrieve secrets from environment variables
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET_SCANDIBUDDY")
+if not GOOGLE_CLIENT_SECRET:
+    st.error("Google OAuth credentials are not set. Please set GOOGLE_CLIENT_SECRET as environment variables.")
+    st.stop()
+
+
+# Construct a credentials dictionary
+google_credentials = {        
+    "web": {
+        "client_id": "268051479638-pgs4n0b9034f0iio3454l1g4m7iv7s3m.apps.googleusercontent.com",
+        "project_id": "scandu",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uris": [
+            "http://localhost:8080"
+            "https://github.com/readymage-internal/scandiweb-buddy",
+
+        ]
+    }
+}
+
+# Write credentials dynamically to a temporary file
+with open("temp_google_credentials.json", "w") as temp_file:
+    json.dump(google_credentials, temp_file)
+
+
 
 authenticator = Authenticate(
-    secret_credentials_path = 'google_credentials.json',
+    secret_credentials_path = 'temp_google_credentials.json',
     cookie_name='cookie_name',
     cookie_key='cookie_key',
-    # redirect_uri = 'http://localhost:8501',
-    redirect_uri = 'https://scandi-buddy-578201479770.europe-west1.run.app'
-    #
+    redirect_uri = 'http://localhost:8080',
+    # redirect_uri = 'https://scandi-buddy-578201479770.europe-west1.run.app'
 )
+
+
 
 # Login event handler
 authenticator.check_authentification()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Create the login/logout functionality
@@ -110,26 +165,26 @@ def logout():
 
 # Define pages and navigation items
 page_1 = st.Page(
-    "pages/dashboard_analysis.py",
+    "app_pages/dashboard_analysis.py",
     title="Dashboard Analysis",
     icon=":material/bar_chart:",
     default=False
 )
 page_2 = st.Page(
-    "pages/tracking_report.py",
+    "app_pages/tracking_report.py",
     title="Tracking Report",
     icon=":material/route:",
     default=False
 )
 page_3 = st.Page(
-    "pages/dataLayer_QA.py",
+    "app_pages/dataLayer_QA.py",
     title="dataLayer QA",
     icon=":material/apps:",
     default=False
 )
 
 page_4 = st.Page(
-    "pages/GTM_container_setup.py",
+    "app_pages/GTM_container_setup.py",
     title="GTM Container",
     icon=":material/equalizer:",
     default=False
@@ -139,44 +194,44 @@ page_4 = st.Page(
 
 
 page_5 = st.Page(
-    "pages/ai_website_improvement_suggestions.py",
+    "app_pages/ai_website_improvement_suggestions.py",
     title="Website Suggestions 🚧",
     icon=":material/lightbulb:",  # Representing suggestions or ideas
     default=False
 )
 page_6 = st.Page(
-    "pages/dashboard_generator.py",
+    "app_pages/dashboard_generator.py",
     title="Dashboard Generator 🚧",
     icon=":material/apps:",  # Representing tools or dashboards
     default=False
 )
 page_7 = st.Page(
-    "pages/dashboard_description_creation.py",
+    "app_pages/dashboard_description_creation.py",
     title="Dashboard Description 🚧",
     icon=":material/text_snippet:",  # Representing content creation
     default=False
 )
 page_8 = st.Page(
-    "pages/data_benchmarking.py",
+    "app_pages/data_benchmarking.py",
     title="Data Benchmarking 🚧",
     icon=":material/equalizer:",  # Representing comparisons and benchmarks
     default=False
 )
 page_9 = st.Page(
-    "pages/domain_explorer.py",
+    "app_pages/domain_explorer.py",
     title="Domain Explorer 🚧",
     icon=":material/search:",  # Representing exploration
     default=False
 )
 page_10 = st.Page(
-    "pages/monitoring_system.py",
+    "app_pages/monitoring_system.py",
     title="System Monitoring 🚧",
     icon=":material/autorenew:",  # Representing observation
     default=False
 )
 
 page_11 = st.Page(
-    "pages/ai_user_testing.py",
+    "app_pages/ai_user_testing.py",
     title="AI User Testing 🚧",
     icon=":material/robot:",  # Representing AI testing
     default=False
@@ -186,14 +241,14 @@ page_11 = st.Page(
 
 
 home = st.Page(
-    "pages/z_home.py",
+    "app_pages/z_home.py",
     title="Home",
     icon=":material/home:",
     default=(st.session_state.role in ["user", "admin"])
 )
 
 admin = st.Page(
-    "pages/z_admin.py",
+    "app_pages/z_admin.py",
     title="Admin Controls",
     icon=":material/key:",
 )
@@ -254,3 +309,6 @@ pg.run()
 
 
 
+# Cleanup: Delete the temporary credentials file (optional for security)
+# import os
+# os.remove("temp_google_credentials.json")
