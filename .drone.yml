@@ -22,8 +22,10 @@ steps:
     skip_tls_verify: true
 
 trigger:
-  ref:
-  - refs/tags/*
+  branch:
+    - master
+  event:
+    - push
 
 ---
 kind: secret
