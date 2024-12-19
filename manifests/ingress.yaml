@@ -10,8 +10,14 @@ spec:
   tls:
     - hosts:
         - buddytools.scandiweb.com
-  defaultBackend:
-    service:
-      name: scandiweb-buddy
-      port:
-        number: 80
+  rules:
+    - host: buddytools.scandiweb.com
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: scandiweb-buddy
+                port:
+                  number: 80
