@@ -93,9 +93,7 @@ google_credentials = {
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         "client_secret": GOOGLE_CLIENT_SECRET,
         "redirect_uris": [
-            "http://localhost:8080"
-            "https://github.com/readymage-internal/scandiweb-buddy",
-
+            "http://buddytools.scandiweb.com/",
         ]
     }
 }
@@ -110,8 +108,8 @@ authenticator = Authenticate(
     secret_credentials_path = 'temp_google_credentials.json',
     cookie_name='cookie_name',
     cookie_key='cookie_key',
-    redirect_uri = 'http://localhost:8080',
-    # redirect_uri = 'https://scandi-buddy-578201479770.europe-west1.run.app'
+    # redirect_uri = 'http://localhost:8080',
+    redirect_uri = 'http://buddytools.scandiweb.com/'
 )
 
 
