@@ -1,0 +1,21 @@
+
+# Ignore virtual environments
+venv/
+.venv/
+
+# Ignore sensitive files
+secrets.json
+google_credentials.json
+
+# Ignore README file
+README.md
+
+# Ignore Streamlit settings
+.streamlit/
+
+# Ignore Jupyter Notebooks
+*.ipynb
+
+# Ignore everything in the .data directory
+data/*
+data/

@@ -1,0 +1,16 @@
+# Ignore Python virtual environments
+venv/
+.venv/
+.venv
+__pycache__/
+*.pyc
+
+# Ignore data directories
+data/
+dashboard_generator/
+dashboard_generator/data/
+dashboard_generator/results/
+temp_analysis/
+
+# Ignore Jupyter notebooks
+*.ipynb
