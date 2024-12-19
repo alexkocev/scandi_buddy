@@ -483,11 +483,11 @@ if run_analysis:
             # html_content = markdown.markdown(md_content, output_format="html5")
             html_content = markdown_to_html(md_content)
 
-            st.write('md_content')
-            st.code(md_content)
+            # st.write('md_content')
+            # st.code(md_content)
             
-            st.write('html_content')
-            st.code(html_content)
+            # st.write('html_content')
+            # st.code(html_content)
             # Prepare the HTML Template
             html_template = f"""
             <!DOCTYPE html>
