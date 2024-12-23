@@ -19,7 +19,10 @@ spec:
       containers:
         - name: scandiweb-buddy
           image: core.harbor.svc.cluster.eu-west-1:8443/scandiweb-buddy/app:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: external-integrations
           ports:
             - containerPort: 8080
               protocol: TCP
