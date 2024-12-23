@@ -19,7 +19,6 @@ load_dotenv()
 
 
 
-
 # Set a consistent favicon and page title for all pages
 img=Image.open("images/icon_app.png")
 
@@ -83,6 +82,7 @@ if not GOOGLE_CLIENT_SECRET:
     st.stop()
 
 
+
 # Construct a credentials dictionary
 google_credentials = {        
     "web": {
@@ -93,7 +93,10 @@ google_credentials = {
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         "client_secret": GOOGLE_CLIENT_SECRET,
         "redirect_uris": [
-            "http://buddytools.scandiweb.com/",
+            # "http://buddytools.scandiweb.com/",
+            # "https://buddytools.scandiweb.com/",
+            # "http://localhost:8080/",
+            "http://127.0.0.1:8080/",
         ]
     }
 }
@@ -108,17 +111,15 @@ authenticator = Authenticate(
     secret_credentials_path = 'temp_google_credentials.json',
     cookie_name='cookie_name',
     cookie_key='cookie_key',
-    # redirect_uri = 'http://localhost:8080',
-    redirect_uri = 'http://buddytools.scandiweb.com/'
+    # redirect_uri = 'http://buddytools.scandiweb.com/'
+    # redirect_uri = 'http://localhost:8080/',
+    redirect_uri = 'http://127.0.0.1:8080/',
 )
 
 
 
 # Login event handler
 authenticator.check_authentification()
-
-
-
 
 
 

@@ -1,0 +1,74 @@
+[
+  {
+    "method": "GET",
+    "url": "https://www.umniah.com/wp-content/uploads/FTTR-AR-2-1.mp4",
+    "status_code": 206,
+    "click_event": {
+      "tagName": "A",
+      "textContent": "Buy Now",
+      "timestamp": 1734943916565,
+      "x": 441,
+      "y": 297
+    }
+  },
+  {
+    "method": "GET",
+    "url": "https://www.umniah.com/wp-content/uploads/app-ss-2.png",
+    "status_code": 200,
+    "click_event": {
+      "tagName": "A",
+      "textContent": "Buy Now",
+      "timestamp": 1734943916565,
+      "x": 441,
+      "y": 297
+    }
+  },
+  {
+    "method": "GET",
+    "url": "https://www.umniah.com/wp-content/uploads/Group-13992.png",
+    "status_code": 200,
+    "click_event": {
+      "tagName": "A",
+      "textContent": "Buy Now",
+      "timestamp": 1734943916565,
+      "x": 441,
+      "y": 297
+    }
+  },
+  {
+    "method": "POST",
+    "url": "https://px.ads.linkedin.com/wa/",
+    "status_code": 204,
+    "click_event": {
+      "tagName": "A",
+      "textContent": "Buy Now",
+      "timestamp": 1734943916565,
+      "x": 441,
+      "y": 297
+    }
+  },
+  {
+    "method": "GET",
+    "url": "https://www.umniah.com/wp-content/uploads/FTTR-AR-2-1.mp4",
+    "status_code": 206,
+    "click_event": {
+      "tagName": "A",
+      "textContent": "Buy Now",
+      "timestamp": 1734943916565,
+      "x": 441,
+      "y": 297
+    }
+  },
+  {
+    "method": "POST",
+    "url": "https://www.google.com/ccm/collect?en=user_id_update&dl=https%3A%2F%2Fwww.umniah.com%2F&scrsrc=www.googletagmanager.com&frm=0&rnd=1351035087.1734943904&dt=Umniah%20is%20the%20fastest%20and%20best%20network%20in%20Jordan%20%7C%20Umniah&auid=1524081684.1734943904&navt=n&npa=0&ga_uid=G-STT808CHT2.GA1.2.1555158150.1734943905&gtm=45He4cc1v79050563za200&gcd=13l3l3l3l1l1&dma=0&tag_exp=101925629~102067555~102067808~102081485~102198178&tft=1734943916561&tfd=17687&apve=1",
+    "status_code": 200,
+    "click_event": {
+      "tagName": "A",
+      "textContent": "Buy Now",
+      "timestamp": 1734943916565,
+      "x": 441,
+      "y": 297
+    }
+  }
+]

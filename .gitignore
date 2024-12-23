@@ -6,6 +6,10 @@ venv/
 # Ignore sensitive files
 secrets.json
 google_credentials.json
+temp_google_credentials.json
+env
+.env
+
 
 # Ignore README file
 README.md

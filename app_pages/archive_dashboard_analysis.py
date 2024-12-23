@@ -86,6 +86,37 @@ st.write("")
 st.write("")
 st.write("")
 
+def markdown_to_html(md_content):
+    # Replace Markdown tables with proper HTML tables
+    md_content = re.sub(r"\|(.+?)\|\n\|(?:-+\|)+\n(.+?)(?=\n\n|\Z)", convert_table_to_html, md_content, flags=re.DOTALL)
+
+    # Replace numbered lists with bullet points while keeping structure
+    md_content = re.sub(r"(\d+)\.\s+\*\*(.+?)\*\*", r"<ul><li><strong>\2</strong></li></ul>", md_content)
+    md_content = re.sub(r"(\d+)\.\s+(.+)", r"<li>\2</li>", md_content)
+
+    return markdown.markdown(md_content)
+
+def convert_table_to_html(match):
+    # Extract headers and rows
+    headers = [h.strip() for h in match.group(1).strip().split('|') if h.strip()]
+    rows = [
+        [cell.strip() for cell in row.split('|') if cell.strip()]
+        for row in match.group(2).strip().splitlines()
+    ]
+    
+    # Build HTML table
+    html_table = '<table><thead><tr>'
+    html_table += ''.join(f'<th>{header}</th>' for header in headers)
+    html_table += '</tr></thead><tbody>'
+    
+    for row in rows:
+        if len(row) != len(headers):
+            # Pad rows with empty cells to match headers
+            row += [''] * (len(headers) - len(row))
+        html_table += '<tr>' + ''.join(f'<td>{cell}</td>' for cell in row) + '</tr>'
+    
+    html_table += '</tbody></table>'
+    return html_table
 
 
 # Estimation box
@@ -377,10 +408,8 @@ if run_analysis:
                 "summary": response
             }
             
-            
             # Final progress update to 100%
             progress_placeholder.progress(1.0, text="Analysis completed.")
-
 
             # Generate PDF report
             logo_path = os.path.abspath("./images/SW_logo.jpeg")
@@ -388,8 +417,12 @@ if run_analysis:
             report_name = response_data["report_name"]
             output_pdf = os.path.join(user_folder, f"{report_name}.pdf")
             md_content = response_data["summary"]            
-            html_content = markdown.markdown(md_content, output_format="html5")
+            # html_content = markdown.markdown(md_content, output_format="html5")
+            html_content = markdown_to_html(md_content)
 
+            st.write('md_content')
+            st.code(md_content)
+            
             # Prepare the HTML Template
             html_template = f"""
             <!DOCTYPE html>
@@ -440,6 +473,24 @@ if run_analysis:
                         color: #E04F4F; /* Brand red */
                         margin: 25px 0 15px; /* Top, right/left, bottom */
                     }}
+
+
+
+
+                    ul {{
+                        margin-left: 20px;
+                        list-style-type: disc;
+                    }}
+                    li {{
+                        margin-bottom: 5px;
+                    }}
+                    strong {{
+                        color: #10132C;
+                    }}
+                    
+                    
+
+
                     table {{
                         width: 100%;
                         border-collapse: collapse;
@@ -457,12 +508,12 @@ if run_analysis:
                     tr:nth-child(even) {{
                         background-color: #f9f9f9;
                     }}
-                    .table-container {{
-                        overflow-x: auto;
+                    tr:hover {{
+                        background-color: #d9f7ff;
                     }}
-        
-        
-        
+                                        
+                                        
+                    
                     img {{
                         max-width: 100px;
                         max-height: 100px;
@@ -510,8 +561,10 @@ if run_analysis:
                 </div>
 
                 <!-- Content -->
-                {html_content}
-
+                <div class="content">
+                    {html_content}
+                </div>
+                
                 <!-- Footer -->
                 <div class="footer">
                     © 2024 Scandiweb | www.scandiweb.com
@@ -525,11 +578,6 @@ if run_analysis:
                 f.write(html_template)
             HTML(html_file).write_pdf(output_pdf)
 
-
-
-
-            
-    
             # Cleanup temp files
             os.remove(html_file)
 

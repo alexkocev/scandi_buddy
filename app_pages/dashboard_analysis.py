@@ -376,6 +376,7 @@ if run_analysis:
 
         Provide a comprehensive overview that captures key insights across all pages.
         Please, write the report using markdown.
+        Avoid using number lists unless you want to show a step by step process (rarely used).
         """
 
         final_analysis_payload = {
@@ -418,10 +419,7 @@ if run_analysis:
             output_pdf = os.path.join(user_folder, f"{report_name}.pdf")
             md_content = response_data["summary"]            
             # html_content = markdown.markdown(md_content, output_format="html5")
-            html_content = markdown_to_html(md_content)
-
-            st.write('md_content')
-            st.code(md_content)
+            html_content = markdown.markdown(md_content)
             
             # Prepare the HTML Template
             html_template = f"""
@@ -468,13 +466,17 @@ if run_analysis:
                         color: #10132C; /* Brand red */
                         margin: 30px 0 20px;  /* Top, right/left, bottom */
                     }}
-                    h2, h3 {{
+                    h2 {{
                         font-family: 'Secular One', sans-serif;
                         color: #E04F4F; /* Brand red */
                         margin: 25px 0 15px; /* Top, right/left, bottom */
                     }}
 
-
+                    h3 {{
+                        font-family: 'Secular One', sans-serif;
+                        color: #E04F4F; /* Brand red */
+                        margin: 25px 0 15px; /* Top, right/left, bottom */
+                    }}
 
 
                     ul {{
@@ -584,7 +586,7 @@ if run_analysis:
             # Notify user
             st.write('\n\n')
             st.success("PDF generated successfully!")
-            st.download_button("Download Report", data=open(output_pdf, "rb"), file_name=f"{report_name}.pdf")
+            st.download_button("Download Report", data=open(output_pdf, "rb"), file_name=f"{report_name} - {client_name}.pdf" if client_name else f"{report_name}.pdf")
 
 
     except Exception as e:
