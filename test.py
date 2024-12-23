@@ -62,118 +62,103 @@ if __name__ == "__main__":
 
 
 
+
+
+
+
+
+
+
 import time
 import json
 import threading
-from seleniumwire import webdriver  # Use seleniumwire instead of selenium
-from selenium.webdriver.common.by import By
+from seleniumwire import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
-
-# Inject a simple JavaScript logger to track click events
-JS_LOGGER = """
-if (!window.clickLog) {
-    window.clickLog = [];
-}
-document.addEventListener('click', function(e) {
-    const clickDetails = {
-        timestamp: Date.now(),
-        x: e.clientX,
-        y: e.clientY,
-        tagName: e.target.tagName,
-        textContent: e.target.textContent.trim().substr(0, 50)  // First 50 chars of text
-    };
-    window.clickLog.push(clickDetails);
-    console.log("[CLICK LOG] ", clickDetails);
-});
-"""
-
-def inject_logger_script(driver):
-    """
-    Injects the JS logger into the active browser window.
-    """
-    driver.execute_script(JS_LOGGER)
-
-def get_click_log(driver):
-    """
-    Retrieves the click log from the browser.
-    """
-    return driver.execute_script("return window.clickLog || []")
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 def main():
+    # Stop logging flag
     stop_logging = [False]
 
     def wait_for_user_to_finish():
         """
-        Waits until the user presses Enter in the console, then stops the logging loop.
+        Wait for the user to press Enter, signaling the end of interactions.
         """
         input("\n** Press Enter (in this console) once you are done with your manual interactions. **\n")
         stop_logging[0] = True
 
-    # Start a separate thread to wait for user input
+    # Start a thread to wait for the user to finish
     input_thread = threading.Thread(target=wait_for_user_to_finish, daemon=True)
     input_thread.start()
 
-    # Configure Selenium Wire options
-    seleniumwire_options = {}
+    # Selenium Wire options
+    seleniumwire_options = {
+        # Uncomment to disable SSL verification (for test sites)
+        # "verify_ssl": False
+    }
+
+    # Configure Chrome options
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")  # Run headless if desired
-    driver = webdriver.Chrome(seleniumwire_options=seleniumwire_options, options=chrome_options)
+    # chrome_options.add_argument("--headless")  # Uncomment for headless mode
+    chrome_options.add_argument("--start-maximized")  # Maximize browser window
+
+    # Create the Selenium Wire driver
+    driver = webdriver.Chrome(
+        seleniumwire_options=seleniumwire_options,
+        options=chrome_options
+    )
 
     try:
-        # 1. Open the website and inject the logger
+        # Open the main website
         print("Opening https://www.umniah.com/ ...")
         driver.get("https://www.umniah.com/")
-        inject_logger_script(driver)
-        print("Logger injected to track click events.\n")
 
-        print("===========================================================")
-        print("Please manually interact with the website now.")
-        print("Only click events and their related network requests will be tracked.")
+        print("\n===========================================================")
+        print("Please interact with the website:")
+        print("- Click buttons or links to navigate.")
         print("===========================================================\n")
 
-        # 2. Prepare to log click events and related network requests
-        important_requests = []
+        # Prepare storage for click-triggered requests
+        click_requests = []
 
         while not stop_logging[0]:
-            # Get the current click log from the browser
-            click_log = get_click_log(driver)
+            # Monitor user interactions
+            print("\nClick on the browser, then return here to press Enter for the next step.")
+            input("Press Enter after clicking an element to capture its requests:\n")
 
-            # Check for new clicks and capture related network requests
-            for click_event in click_log:
-                # Clear the browser click log after reading
-                driver.execute_script("window.clickLog = [];")
+            # Clear old requests to isolate new ones
+            driver.requests.clear()
 
-                print(f"[USER CLICK] {click_event}")
-                click_timestamp = click_event['timestamp']
+            # Allow time for the network requests to occur after a click
+            print("Capturing requests for 3 seconds...")
+            time.sleep(3)
 
-                # Look for network requests made around the time of the click
-                for request in driver.requests:
-                    if request.response:
-                        # Check if the request occurred within 1 second of the click
-                        request_time = request.response.date.timestamp() * 1000  # Convert to ms
-                        if abs(request_time - click_timestamp) < 1000:  # 1-second window
-                            request_info = {
-                                "method": request.method,
-                                "url": request.url,
-                                "status_code": request.response.status_code,
-                                "click_event": click_event,  # Associate this request with the user click
-                            }
-                            important_requests.append(request_info)
-                            print(f"[RELATED REQUEST] {request_info}")
+            # Gather network requests made during the time window
+            for request in driver.requests:
+                if request.response:
+                    request_info = {
+                        "method": request.method,
+                        "url": request.url,
+                        "status_code": request.response.status_code,
+                        "request_headers": dict(request.headers),
+                        "response_headers": dict(request.response.headers),
+                    }
+                    click_requests.append(request_info)
 
-            # Sleep briefly to avoid overloading the loop
-            time.sleep(0.5)
+            print(f"Captured {len(click_requests)} requests after the last click.")
 
     finally:
         # Close the browser
         driver.quit()
 
-    # Write important requests to a JSON file
-    filename = "important_click_requests.json"
+    # Write the filtered requests to JSON
+    filename = "filtered_click_requests.json"
     with open(filename, "w", encoding="utf-8") as f:
-        json.dump(important_requests, f, ensure_ascii=False, indent=2)
+        json.dump(click_requests, f, ensure_ascii=False, indent=2)
 
-    print(f"\nImportant requests saved to {filename}.\n")
+    print(f"\nFiltered click-triggered requests saved to {filename}.\n")
 
 if __name__ == "__main__":
     main()

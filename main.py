@@ -94,9 +94,8 @@ google_credentials = {
         "client_secret": GOOGLE_CLIENT_SECRET,
         "redirect_uris": [
             # "http://buddytools.scandiweb.com/",
-            # "https://buddytools.scandiweb.com/",
-            # "http://localhost:8080/",
-            "http://127.0.0.1:8080/",
+            "https://buddytools.scandiweb.com/",
+            # "http://127.0.0.1:8080/",
         ]
     }
 }
@@ -111,9 +110,8 @@ authenticator = Authenticate(
     secret_credentials_path = 'temp_google_credentials.json',
     cookie_name='cookie_name',
     cookie_key='cookie_key',
-    # redirect_uri = 'http://buddytools.scandiweb.com/'
-    # redirect_uri = 'http://localhost:8080/',
-    redirect_uri = 'http://127.0.0.1:8080/',
+    redirect_uri = 'https://buddytools.scandiweb.com/'
+    # redirect_uri = 'http://127.0.0.1:8080/',
 )
 
 
