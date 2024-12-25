@@ -304,13 +304,13 @@ if run_analysis:
                     
             Report Type: {report_type}
             Emoji Usage: {'Enabled' if add_emoji else 'Disabled'}
+            Build tables if needed
 
             {f'Analysis Example: {analysis_example}' if analysis_example else ''}
 
             {f'This is the first page of a Looker Studio report. Please extract the following and display as follows: Client Name: ... - Report Name: .... If either of these is not clearly provided, mention that it is unavailable.' if i == 1 else ''}
 
             Please focus on key insights, trends, and notable information.
-            Make tables if possible
             """
                 
             page_payload = {
@@ -370,12 +370,11 @@ if run_analysis:
 
         Report Type: {report_type}
         Emoji Usage: {'Enabled' if add_emoji else 'Disabled'}
-
+        Build tables if needed
+        
         Provide a comprehensive overview that captures key insights across all pages.
         Please, write the report using markdown.
         Avoid using number lists unless you want to show a step by step process (rarely used).
-        Make tables if possible
-
         """
 
         final_analysis_payload = {
