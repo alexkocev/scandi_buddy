@@ -112,9 +112,9 @@ authenticator = Authenticate(
     secret_credentials_path = 'temp_google_credentials.json',
     cookie_name='cookie_name',
     cookie_key='cookie_key',
-    redirect_uri = 'https://buddytools.scandiweb.com/'
+    # redirect_uri = 'https://buddytools.scandiweb.com/'
     # redirect_uri = 'http://127.0.0.1:8080/',
-    # redirect_uri = 'http://localhost:8501/',
+    redirect_uri = 'http://localhost:8501/',
     # redirect_uri = 'https://scandi-buddy-578201479770.europe-west1.run.app',
 
     
@@ -165,29 +165,31 @@ def logout():
 
 # https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Rounded
 
+app_pages_dir = os.path.join(os.path.dirname(__file__), "app_pages")
 
 # Define pages and navigation items
 page_1 = st.Page(
-    "app_pages/dashboard_analysis.py",
+    os.path.join(app_pages_dir, "dashboard_analysis.py"),
+
     title="Dashboard Analysis",
     icon=":material/bar_chart:",
     default=False
 )
 page_2 = st.Page(
-    "app_pages/tracking_report.py",
+    os.path.join(app_pages_dir, "tracking_report.py"),
     title="Tracking Report",
     icon=":material/route:",
     default=False
 )
 page_3 = st.Page(
-    "app_pages/dataLayer_QA.py",
+    os.path.join(app_pages_dir, "dataLayer_QA.py"),
     title="dataLayer QA",
     icon=":material/apps:",
     default=False
 )
 
 page_4 = st.Page(
-    "app_pages/GTM_container_setup.py",
+    os.path.join(app_pages_dir, "GTM_container_setup.py"),
     title="GTM Container",
     icon=":material/equalizer:",
     default=False
@@ -197,44 +199,44 @@ page_4 = st.Page(
 
 
 page_5 = st.Page(
-    "app_pages/ai_website_improvement_suggestions.py",
+    os.path.join(app_pages_dir, "ai_website_improvement_suggestions.py"),
     title="Website Suggestions 🚧",
     icon=":material/lightbulb:",  # Representing suggestions or ideas
     default=False
 )
 page_6 = st.Page(
-    "app_pages/dashboard_generator.py",
+    os.path.join(app_pages_dir, "dashboard_generator.py"),
     title="Dashboard Generator 🚧",
     icon=":material/apps:",  # Representing tools or dashboards
     default=False
 )
 page_7 = st.Page(
-    "app_pages/dashboard_description_creation.py",
+    os.path.join(app_pages_dir, "dashboard_description_creation.py"),
     title="Dashboard Description 🚧",
     icon=":material/text_snippet:",  # Representing content creation
     default=False
 )
 page_8 = st.Page(
-    "app_pages/data_benchmarking.py",
+    os.path.join(app_pages_dir, "data_benchmarking.py"),
     title="Data Benchmarking 🚧",
     icon=":material/equalizer:",  # Representing comparisons and benchmarks
     default=False
 )
 page_9 = st.Page(
-    "app_pages/domain_explorer.py",
+    os.path.join(app_pages_dir, "domain_explorer.py"),
     title="Domain Explorer 🚧",
     icon=":material/search:",  # Representing exploration
     default=False
 )
 page_10 = st.Page(
-    "app_pages/monitoring_system.py",
+    os.path.join(app_pages_dir, "monitoring_system.py"),
     title="System Monitoring 🚧",
     icon=":material/autorenew:",  # Representing observation
     default=False
 )
 
 page_11 = st.Page(
-    "app_pages/ai_user_testing.py",
+    os.path.join(app_pages_dir, "ai_user_testing.py"),
     title="AI User Testing 🚧",
     icon=":material/robot:",  # Representing AI testing
     default=False
@@ -244,14 +246,14 @@ page_11 = st.Page(
 
 
 home = st.Page(
-    "app_pages/z_home.py",
+    os.path.join(app_pages_dir, "z_home.py"),
     title="Home",
     icon=":material/home:",
     default=(st.session_state.role in ["user", "admin"])
 )
 
 admin = st.Page(
-    "app_pages/z_admin.py",
+    os.path.join(app_pages_dir, "z_admin.py"),
     title="Admin Controls",
     icon=":material/key:",
 )
