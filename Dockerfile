@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# Install dependencies, including fonts
+# Install system dependencies for Playwright and other libraries
 RUN apt-get update && apt-get install -y \
     libcairo2 \
     libcairo2-dev \
@@ -13,7 +13,34 @@ RUN apt-get update && apt-get install -y \
     fonts-noto-color-emoji \
     fonts-freefont-ttf \
     wget \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    libnss3 \
+    libxss1 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    libdrm2 \
+    libgbm1 \
+    libasound2 \
+    libxrandr2 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxi6 \
+    libxtst6 \
+    xauth \
+    xvfb \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+WORKDIR /app
+COPY requirements.txt /app/requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install google-cloud-storage
+
+
+# Install Playwright and its browsers
+RUN pip install playwright
+RUN playwright install --with-deps
 
 # Refresh font cache
 RUN fc-cache -f -v
