@@ -86,14 +86,10 @@ st.write("")
 st.write("")
 st.write("")
 
+
 def markdown_to_html(md_content):
     # Replace Markdown tables with proper HTML tables
     md_content = re.sub(r"\|(.+?)\|\n\|(?:-+\|)+\n(.+?)(?=\n\n|\Z)", convert_table_to_html, md_content, flags=re.DOTALL)
-
-    # Replace numbered lists with bullet points while keeping structure
-    md_content = re.sub(r"(\d+)\.\s+\*\*(.+?)\*\*", r"<ul><li><strong>\2</strong></li></ul>", md_content)
-    md_content = re.sub(r"(\d+)\.\s+(.+)", r"<li>\2</li>", md_content)
-
     return markdown.markdown(md_content)
 
 def convert_table_to_html(match):
@@ -314,6 +310,7 @@ if run_analysis:
             {f'This is the first page of a Looker Studio report. Please extract the following and display as follows: Client Name: ... - Report Name: .... If either of these is not clearly provided, mention that it is unavailable.' if i == 1 else ''}
 
             Please focus on key insights, trends, and notable information.
+            Make tables if possible
             """
                 
             page_payload = {
@@ -377,6 +374,8 @@ if run_analysis:
         Provide a comprehensive overview that captures key insights across all pages.
         Please, write the report using markdown.
         Avoid using number lists unless you want to show a step by step process (rarely used).
+        Make tables if possible
+
         """
 
         final_analysis_payload = {
@@ -419,7 +418,9 @@ if run_analysis:
             output_pdf = os.path.join(user_folder, f"{report_name}.pdf")
             md_content = response_data["summary"]            
             # html_content = markdown.markdown(md_content, output_format="html5")
-            html_content = markdown.markdown(md_content)
+            html_content = markdown_to_html(md_content)
+
+            # html_content = markdown.markdown(md_content)
             
             # Prepare the HTML Template
             html_template = f"""
