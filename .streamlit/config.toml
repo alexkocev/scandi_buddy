@@ -1,0 +1,12 @@
+# .streamlit/config.toml
+
+[theme]
+primaryColor = "#FF5722"  # Matches the orange-red color used in the screenshot
+backgroundColor = "#F3F4F6"  # Light grayish background for main content
+secondaryBackgroundColor = "#FFFFFF"  # Pure white for highlighted sections
+textColor = "#333333"  # Dark gray text for readability
+font = "sans serif"  # Clean sans serif font for uniformity
+
+
+[server]
+maxUploadSize = 500

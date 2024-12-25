@@ -33,10 +33,10 @@ RUN apt-get update && apt-get install -y \
 # Install Python dependencies
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
-
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install google-cloud-storage
 
+# Install Google Cloud Storage to overcome size limit of 32Mb per uploaded file
+RUN pip install google-cloud-storage
 
 # Install Playwright and its browsers
 RUN pip install playwright
@@ -56,8 +56,8 @@ WORKDIR /app
 # Copy application files
 COPY . /app
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# copy streamlit configuration
+COPY .streamlit /app/.streamlit
 
 # Expose the default Streamlit port
 EXPOSE 8080

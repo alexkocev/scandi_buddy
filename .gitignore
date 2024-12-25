@@ -11,11 +11,10 @@ env
 .env
 
 
-# Ignore README file
-README.md
+# Ignore note file
+Alex_note.md
 
-# Ignore Streamlit settings
-.streamlit/
+
 
 # Ignore Jupyter Notebooks
 *.ipynb
