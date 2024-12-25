@@ -112,9 +112,9 @@ authenticator = Authenticate(
     secret_credentials_path = 'temp_google_credentials.json',
     cookie_name='cookie_name',
     cookie_key='cookie_key',
-    # redirect_uri = 'https://buddytools.scandiweb.com/'
+    redirect_uri = 'https://buddytools.scandiweb.com/'
     # redirect_uri = 'http://127.0.0.1:8080/',
-    redirect_uri = 'http://localhost:8501/',
+    # redirect_uri = 'http://localhost:8501/',
     # redirect_uri = 'https://scandi-buddy-578201479770.europe-west1.run.app',
 
     
