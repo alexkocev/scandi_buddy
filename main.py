@@ -20,8 +20,8 @@ load_dotenv()
 
 
 # Set a consistent favicon and page title for all pages
-img=Image.open("images/icon_app.png")
-
+images_dir = os.path.join(os.path.dirname(__file__), "images")
+img=Image.open(os.path.join(images_dir, "icon_app.png"))
 st.set_page_config(page_title="scandiBuddy", page_icon=img, layout="wide")
 
 
@@ -93,7 +93,7 @@ google_credentials = {
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         "client_secret": GOOGLE_CLIENT_SECRET,
         "redirect_uris": [
-            # "http://buddytools.scandiweb.com/",
+            "http://buddytools.scandiweb.com/",
             "https://buddytools.scandiweb.com/",
             "http://127.0.0.1:8080/",
             'http://localhost:8501/',
@@ -112,7 +112,7 @@ authenticator = Authenticate(
     secret_credentials_path = 'temp_google_credentials.json',
     cookie_name='cookie_name',
     cookie_key='cookie_key',
-    redirect_uri = 'https://buddytools.scandiweb.com/'
+    redirect_uri = 'http://buddytools.scandiweb.com/'
     # redirect_uri = 'http://127.0.0.1:8080/',
     # redirect_uri = 'http://localhost:8501/',
     # redirect_uri = 'https://scandi-buddy-578201479770.europe-west1.run.app',
@@ -170,7 +170,6 @@ app_pages_dir = os.path.join(os.path.dirname(__file__), "app_pages")
 # Define pages and navigation items
 page_1 = st.Page(
     os.path.join(app_pages_dir, "dashboard_analysis.py"),
-
     title="Dashboard Analysis",
     icon=":material/bar_chart:",
     default=False
@@ -263,12 +262,7 @@ logout_page = st.Page(logout,
                       icon=":material/logout:")
 
 # Display app title and logo
-
-
 st.logo("images/horizontal_app.png", icon_image="images/icon_app.png")
-
-# st.logo("images/SW_logo.jpeg", icon_image="images/SW_logo.jpeg")
-
 
 
 
@@ -286,6 +280,11 @@ if st.session_state.role in ["user", "admin"]:
     # Insert items in desired order
     navigation_items = {
         **page_dict,
+        "Account": [home, logout_page],
+    }
+
+if st.session_state.role is None:
+    navigation_items = {
         "Account": [home, logout_page],
     }
 

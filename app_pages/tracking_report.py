@@ -210,40 +210,41 @@ formatted_chunks = None
 estimator_container = st.container(border=True)
 
 with estimator_container:
-    estimation_progress_bar = st.empty()
+    # estimation_progress_bar = st.empty()
 
     if uploaded_excel and uploaded_notion_files:
         st.session_state.excel_files = [(f.name, f.read()) for f in uploaded_excel]
         st.session_state.notion_files = [(f.name, f.read()) for f in uploaded_notion_files]
 
         try:
-            estimation_progress_bar.progress(10, text="Estimation in progress...")
-            # Combine markdown and excel content
-            combined_message = combine_uploaded_markdown_files(st.session_state.notion_files)
-            estimation_progress_bar.progress(20, text="Estimation in progress...")
-            all_sheets_text = excel_sheets_to_text(st.session_state.excel_files)
-            estimation_progress_bar.progress(40, text="Estimation in progress...")
-            combined_input = combined_message + "\n" + all_sheets_text
-            estimation_progress_bar.progress(60, text="Estimation in progress...")
-            # Split the text into chunks
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=60000,  
-                chunk_overlap=500,  
-            )
-            chunks = text_splitter.split_text(combined_input)
-            estimation_progress_bar.progress(80, text="Estimation in progress...")
-            formatted_chunks = [f"Section {i+1}:\n{c.strip()}" for i,c in enumerate(chunks)]
-            st.session_state.formatted_chunks = formatted_chunks
-            num_chunks = len(st.session_state.formatted_chunks)
-            # Estimate cost/time
-            estimated_time, estimated_cost = estimate_analysis(num_chunks)
-            estimation_progress_bar.progress(100, text="Estimation complete")
+            with st.spinner("Estimation in progress..."):
+                # estimation_progress_bar.progress(10, text="Estimation in progress...")
+                # Combine markdown and excel content
+                combined_message = combine_uploaded_markdown_files(st.session_state.notion_files)
+                # estimation_progress_bar.progress(20, text="Estimation in progress...")
+                all_sheets_text = excel_sheets_to_text(st.session_state.excel_files)
+                # estimation_progress_bar.progress(40, text="Estimation in progress...")
+                combined_input = combined_message + "\n" + all_sheets_text
+                # estimation_progress_bar.progress(60, text="Estimation in progress...")
+                # Split the text into chunks
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=60000,  
+                    chunk_overlap=500,  
+                )
+                chunks = text_splitter.split_text(combined_input)
+                # estimation_progress_bar.progress(80, text="Estimation in progress...")
+                formatted_chunks = [f"Section {i+1}:\n{c.strip()}" for i,c in enumerate(chunks)]
+                st.session_state.formatted_chunks = formatted_chunks
+                num_chunks = len(st.session_state.formatted_chunks)
+                # Estimate cost/time
+                estimated_time, estimated_cost = estimate_analysis(num_chunks)
+                # estimation_progress_bar.progress(100, text="Estimation complete")
             
 
             if num_chunks == 1:
-                st.markdown(f"<small>🔢  Estimation for 1 chunk</small>", unsafe_allow_html=True)
+                st.success(f"Estimation for 1 chunk")
             else:
-                st.markdown(f"<small>🔢  Estimation for {num_chunks} chunks</small>", unsafe_allow_html=True)
+                st.success(f"Estimation for {num_chunks} chunks")
 
             col1, col2 = st.columns(2)
             with col1:
@@ -257,7 +258,7 @@ with estimator_container:
     else:
         
         estimated_time, estimated_cost = estimate_analysis(1)
-        st.markdown(f"<small>🔢  Estimation for 1 chunk</small>", unsafe_allow_html=True)
+        st.success(f"Estimation for 1 chunk")
 
         col1, col2 = st.columns(2)
         with col1:

@@ -136,48 +136,50 @@ def estimate_analysis(num_pages):
 estimator_container = st.container(border=True)
 
 with estimator_container:
-    estimation_progress_bar = st.empty()
+    # estimation_progress_bar = st.empty()
     if uploaded_file is not None:
+        st.session_state.pdf_bytes = uploaded_file.read()
         
         try:
-            st.session_state.pdf_bytes = uploaded_file.read()
-            estimation_progress_bar.progress(10, text="Calculating number of pages...")
-            # Read PDF and calculate number of pages
-            pdf_reader = PdfReader(io.BytesIO(st.session_state.pdf_bytes))
-            num_pages = len(pdf_reader.pages)
-            if num_pages == 0:
-                st.error("This PDF appears to have no pages.")
-                st.stop()
-            estimation_progress_bar.progress(50, text="Estimation in progress...")
-            estimated_time, estimated_cost = estimate_analysis(num_pages)
-            estimation_progress_bar.progress(100, text="Estimation complete.")
+            # estimation_progress_bar.progress(10, text="Calculating number of pages...")
 
-            if num_pages == 1:
-                st.markdown("<small>🔢  Estimation for 1 page</small>", unsafe_allow_html=True)
-            else:
-                st.markdown(f"<small>🔢  Estimation for {num_pages} pages</small>", unsafe_allow_html=True)
+    
+            with st.spinner("Estimation in progress..."):
+                # Read PDF and calculate number of pages
+                pdf_reader = PdfReader(io.BytesIO(st.session_state.pdf_bytes))
+                num_pages = len(pdf_reader.pages)
+                if num_pages == 0:
+                    st.error("This PDF appears to have no pages.")
+                    st.stop()
+                    
+                estimated_time, estimated_cost = estimate_analysis(num_pages)
+
+            # estimation_progress_bar.progress(50, text="Estimation in progress...")
+            # estimated_time, estimated_cost = estimate_analysis(num_pages)
+            # estimation_progress_bar.progress(100, text="Estimation complete.")
+
 
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("Estimated Time", estimated_time,
+                st.metric(f"Estimated Time for {num_pages} page(s)", estimated_time,
                         help="Includes page analysis but excludes summary generation")
             with col2:
-                st.metric("Estimated Cost", estimated_cost,
+                st.metric(f"Estimated Cost for {num_pages} page(s)", estimated_cost,
                         help="Based on API usage and complexity")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
     else:
         
-        st.markdown("<small>🔢  Estimation for 1 page</small>", unsafe_allow_html=True)
         estimated_time, estimated_cost = estimate_analysis(1)
-        
+        # st.success("Estimation for 1 page")
+
         col1, col2 = st.columns(2)
         with col1:
-            st.metric("Estimated Time", estimated_time,
+            st.metric(f"Estimated Time for 1 page", estimated_time,
                     help="Includes page analysis but excludes summary generation")
         with col2:
-            st.metric("Estimated Cost", estimated_cost,
+            st.metric("Estimated Cost for 1 page", estimated_cost,
                     help="Based on API usage and complexity")
             
 
@@ -582,12 +584,25 @@ if run_analysis:
 
             # Cleanup temp files
             os.remove(html_file)
+            os.remove(pdf_path)
 
+            # Save results to session state
+            st.session_state.md_content = md_content
+            st.session_state.output_pdf = output_pdf
+            
+            
             # Notify user
             st.write('\n\n')
-            st.success("PDF generated successfully!")
-            st.download_button("Download Report", data=open(output_pdf, "rb"), file_name=f"{report_name} - {client_name}.pdf" if client_name else f"{report_name}.pdf")
+            st.success("Report generated successfully!")
+            st.download_button("📄 Download Report", data=open(st.session_state.output_pdf, "rb"), file_name=f"{report_name} - {client_name}.pdf" if client_name else f"{report_name}.pdf")
 
+            # Final expander to show Markdown output
+            with st.expander("🔍 Show Report", expanded=False):
+                if run_analysis:
+                    if st.session_state.md_content:
+                        st.markdown(st.session_state.md_content, unsafe_allow_html=True)
+                    else:
+                        st.write("No output available. Please run the analysis.")
 
     except Exception as e:
         st.error(f"An error occurred: {e}")
