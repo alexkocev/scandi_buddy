@@ -1,0 +1,48 @@
+---
+name: Build and push to ECR, update deployment
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: 'eu-west-1'
+  IMAGE_NAME: 'github/readymage-internal/scandiweb-buddy'
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::536697258217:role/github-actions-scandiweb-buddy
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ env.IMAGE_NAME }}
+        run: |
+          docker build . \
+          -t $REGISTRY/$REPOSITORY:${{ github.sha }} \
+          -t $REGISTRY/$REPOSITORY:$GITHUB_REF_NAME \
+          -t $REGISTRY/$REPOSITORY:latest
+          docker push $REGISTRY/$REPOSITORY:${{ github.sha }} -a
+
+  push-manifest:
+    name: Restart deployment in ArgoCD
+    needs: [publish]
+    steps:
+      - name: Notify ArgoCD
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${ARGOCD_TOKEN}" \
+          -d '"restart"' \
+          "${ARGOCD_URL}/api/v1/applications/${ARGOCD_APP_NAME}/resource/actions?kind=Deployment&group=apps&version=v1&resourceName=scandiweb-buddy&namespace=${ARGOCD_NAMESPACE}"
