@@ -34,7 +34,9 @@ jobs:
           -t $REGISTRY/$REPOSITORY:${{ github.sha }} \
           -t $REGISTRY/$REPOSITORY:$GITHUB_REF_NAME \
           -t $REGISTRY/$REPOSITORY:latest
-          docker push $REGISTRY/$REPOSITORY:${{ github.sha }} -a
+          docker push $REGISTRY/$REPOSITORY:${{ github.sha }}
+          docker push $REGISTRY/$REPOSITORY:$GITHUB_REF_NAME
+          docker push $REGISTRY/$REPOSITORY:latest
 
   push-manifest:
     name: Restart deployment in ArgoCD
