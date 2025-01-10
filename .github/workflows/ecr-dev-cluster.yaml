@@ -44,9 +44,13 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: Notify ArgoCD
+        env:
+          ARGOCD_URL: ${{ vars.ARGOCD_URL }}
+          ARGOCD_APP_NAME: ${{ vars.ARGOCD_APP_NAME }}
+          ARGOCD_NAMESPACE: ${{ vars.ARGOCD_NAMESPACE }}
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${ARGOCD_TOKEN}" \
+          -H "Authorization: Bearer ${{ secrets.ARGOCD_TOKEN }}" \
           -d '"restart"' \
           "${ARGOCD_URL}/api/v1/applications/${ARGOCD_APP_NAME}/resource/actions?kind=Deployment&group=apps&version=v1&resourceName=scandiweb-buddy&namespace=${ARGOCD_NAMESPACE}"
