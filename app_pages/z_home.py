@@ -10,12 +10,12 @@ except:
     st.write(f"Hello,")
     
     
-st.write(f"Welcome to ScandiBudy, your new assistant at ScandiWeb 🚀")
+st.write(f"Welcome to ScandiBuddy, your new assistant at ScandiWeb 🚀")
 
 
 st.write("")
 st.write("")
 st.write("")
 
-st.write(f"Need help or want to give a feedback? Drop a message at alexandre.kocev@scandiweb.com")
+st.write(f"Need help or want to develop a new feature? Drop me a message at alexandre.kocev@scandiweb.com or on Slack @Alexandre Kocev")
 

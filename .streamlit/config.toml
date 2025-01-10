@@ -10,3 +10,4 @@ font = "sans serif"  # Clean sans serif font for uniformity
 
 [server]
 maxUploadSize = 500
+page_icon = "images/icon_app.png"

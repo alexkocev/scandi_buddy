@@ -100,59 +100,39 @@ st.write("")
 
 def markdown_to_html(md_content):
     # Replace Markdown tables with proper HTML tables
-    # md_content = re.sub(r"\|(.+?)\|\n\|(?:-+\|)+\n(.+?)(?=\n\n|\Z)", convert_table_to_html, md_content, flags=re.DOTALL)
+    md_content = re.sub(r"```markdown\n(.*?)\n```", convert_table_to_html, md_content, flags=re.DOTALL)
+    md_content = re.sub(r"\|(.+?)\|\n\|(?:-+\|)+\n(.+?)(?=\n\n|\Z)", convert_table_to_html, md_content, flags=re.DOTALL)
+    
+    return markdown.markdown(md_content)
 
-    # Replace numbered lists with bullet points while keeping structure
-    # md_content = re.sub(r"(\d+)\.\s+\*\*(.+?)\*\*", r"<ul><li><strong>\2</strong></li></ul>", md_content)
-    # md_content = re.sub(r"(\d+)\.\s+(.+)", r"<li>\2</li>", md_content)
-
-    # Remove '```markdown' code block artifacts
-    md_content = re.sub(r"```(?:markdown)?\n(.*?)\n```", r"```\1```", md_content, flags=re.DOTALL)
-
-    # Replace code blocks with <pre><code> for clean indentation and syntax highlighting
-    md_content = re.sub(r"```(.*?)\n(.*?)```", r"<pre><code class='\1'>\2</code></pre>", md_content, flags=re.DOTALL)
-
-    # Remove stray '```' left behind
-    md_content = re.sub(r"```", "", md_content)
-
-    # Properly handle checkboxes for lists ([ ] or [x])
-    md_content = re.sub(r"- \[ \] (.+)", r'<li><input type="checkbox" disabled> \1</li>', md_content)
-    md_content = re.sub(r"- \[x\] (.+)", r'<li><input type="checkbox" disabled checked> \1</li>', md_content)
-    md_content = re.sub(r"(<li><input.*?</li>)", r"<ul>\1</ul>", md_content, flags=re.DOTALL)
-
-
-
-
-    # Clean up unintended bullet points from headers (e.g., `- Header`)
-    # md_content = re.sub(r"^\s*-\s+(?=\*\*)", "", md_content, flags=re.MULTILINE)
-    # md_content = re.sub(r"^\s*-\s+(?=#)", "", md_content, flags=re.MULTILINE)
-   
-    # Convert Markdown to HTML
-    # html_content = markdown.markdown(md_content, extensions=['tables']) 
-    html_content = markdown.markdown(md_content, extensions=["tables", "fenced_code", "nl2br"])
-
-    # return markdown.markdown(md_content)
-    return html_content
 
 def convert_table_to_html(match):
-    # Extract headers and rows
-    headers = [h.strip() for h in match.group(1).strip().split('|') if h.strip()]
-    rows = [
+    """
+    Convert Markdown table into HTML table format.
+    """
+    table_text = match.group(1) if "```" in match.group(0) else match.group(0)
+    rows = [row.strip() for row in table_text.strip().splitlines() if row.strip()]
+
+    if not rows:
+        return ""
+
+    headers = [cell.strip() for cell in rows[0].split('|') if cell.strip()]
+    data_rows = [
         [cell.strip() for cell in row.split('|') if cell.strip()]
-        for row in match.group(2).strip().splitlines()
+        for row in rows[2:]  # Skip header separator line
     ]
-    
+
     # Build HTML table
-    html_table = '<table><thead><tr>'
-    html_table += ''.join(f'<th>{header}</th>' for header in headers)
+    html_table = '<table style="width:100%; border-collapse:collapse; border:1px solid #ddd;">'
+    html_table += '<thead style="background-color:#f2f2f2;"><tr>'
+    html_table += ''.join(f'<th style="padding:8px; text-align:left; border:1px solid #ddd;">{header}</th>' for header in headers)
     html_table += '</tr></thead><tbody>'
-    
-    for row in rows:
-        if len(row) != len(headers):
-            # Pad rows with empty cells to match headers
-            row += [''] * (len(headers) - len(row))
-        html_table += '<tr>' + ''.join(f'<td>{cell}</td>' for cell in row) + '</tr>'
-    
+
+    for data_row in data_rows:
+        html_table += '<tr>'
+        html_table += ''.join(f'<td style="padding:8px; text-align:left; border:1px solid #ddd;">{cell}</td>' for cell in data_row)
+        html_table += '</tr>'
+
     html_table += '</tbody></table>'
     return html_table
 
@@ -210,35 +190,26 @@ formatted_chunks = None
 estimator_container = st.container(border=True)
 
 with estimator_container:
-    # estimation_progress_bar = st.empty()
-
     if uploaded_excel and uploaded_notion_files:
         st.session_state.excel_files = [(f.name, f.read()) for f in uploaded_excel]
         st.session_state.notion_files = [(f.name, f.read()) for f in uploaded_notion_files]
 
         try:
             with st.spinner("Estimation in progress..."):
-                # estimation_progress_bar.progress(10, text="Estimation in progress...")
-                # Combine markdown and excel content
                 combined_message = combine_uploaded_markdown_files(st.session_state.notion_files)
-                # estimation_progress_bar.progress(20, text="Estimation in progress...")
                 all_sheets_text = excel_sheets_to_text(st.session_state.excel_files)
-                # estimation_progress_bar.progress(40, text="Estimation in progress...")
                 combined_input = combined_message + "\n" + all_sheets_text
-                # estimation_progress_bar.progress(60, text="Estimation in progress...")
                 # Split the text into chunks
                 text_splitter = RecursiveCharacterTextSplitter(
                     chunk_size=60000,  
                     chunk_overlap=500,  
                 )
                 chunks = text_splitter.split_text(combined_input)
-                # estimation_progress_bar.progress(80, text="Estimation in progress...")
                 formatted_chunks = [f"Section {i+1}:\n{c.strip()}" for i,c in enumerate(chunks)]
                 st.session_state.formatted_chunks = formatted_chunks
                 num_chunks = len(st.session_state.formatted_chunks)
                 # Estimate cost/time
                 estimated_time, estimated_cost = estimate_analysis(num_chunks)
-                # estimation_progress_bar.progress(100, text="Estimation complete")
             
 
             if num_chunks == 1:
@@ -248,9 +219,20 @@ with estimator_container:
 
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("Estimated Time", estimated_time, help="Time to process all chunks")
+                if num_chunks == 1:
+                    st.metric(f"Estimated Time for {num_chunks} chunk", estimated_time,
+                            help="Includes page analysis but excludes summary generation")
+                else:
+                    st.metric(f"Estimated Time for {num_chunks} chunks", estimated_time,
+                            help="Includes page analysis but excludes summary generation")   
+                      
             with col2:
-                st.metric("Estimated Cost", estimated_cost, help="Based on API usage")
+                if num_chunks == 1:
+                    st.metric(f"Estimated Cost for {num_chunks} chunk", estimated_cost,
+                            help="Based on API usage and complexity")
+                else:
+                    st.metric(f"Estimated Cost for {num_chunks} chunks", estimated_cost,
+                            help="Based on API usage and complexity")   
         
         except Exception as e:
             st.error(f"An error occurred: {e}")
@@ -258,13 +240,13 @@ with estimator_container:
     else:
         
         estimated_time, estimated_cost = estimate_analysis(1)
-        st.success(f"Estimation for 1 chunk")
-
         col1, col2 = st.columns(2)
         with col1:
-            st.metric("Estimated Time", estimated_time, help="Time to process all chunks")
+            st.metric(f"Estimated Time for 1 chunk", estimated_time,
+                help="Includes page analysis but excludes summary generation")
         with col2:
-            st.metric("Estimated Cost", estimated_cost, help="Based on API usage")
+            st.metric(f"Estimated Cost for 1 chunk", estimated_cost,
+                    help="Based on API usage and complexity")
         
 
 
@@ -385,6 +367,13 @@ if run_analysis:
             - Use clear markdown with subheadings.
             - Maintain a professional tone.
             - Keep within 1,000 tokens for the response.
+            - Avoid using number lists unless you want to show a step by step process (rarely used).
+            - If using bullet points, use - instead of *
+            - Use this template to build tables:
+            | Provider | Transactions | Revenue Share |
+            |----------|-------------|---------------|
+            | Makecommerce | 7,548 (96%) | 678.45K € (94%) |
+            | Inbank | <1% | <1% |
             """
 
             chunk_payload = {
@@ -442,9 +431,17 @@ if run_analysis:
         - Adhere to the provided template structure.
         - Ensure the final markdown document is between 100,000 and 200,000 characters.
 
+        ### Formatting:
+        - Please, write the report using markdown.
+        - Avoid using number lists unless you want to show a step by step process (rarely used).
+        - If using bullet points, use - instead of *
+        - Use this template to build tables:
+        | Provider | Transactions | Revenue Share |
+        |----------|-------------|---------------|
+        | Makecommerce | 7,548 (96%) | 678.45K € (94%) |
+        | Inbank | <1% | <1% |
 
         ### Notes:
-        - Use markdown formatting with appropriate headings and subheadings.
         - Maintain a cohesive narrative throughout the report.
         - Output length: 100,000 to 200,000 characters
         - Do not include extra instructions like "I'll help combine these analyses..." or "[End of Report]" in the final output.

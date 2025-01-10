@@ -89,30 +89,42 @@ st.write("")
 
 def markdown_to_html(md_content):
     # Replace Markdown tables with proper HTML tables
+    md_content = re.sub(r"```markdown\n(.*?)\n```", convert_table_to_html, md_content, flags=re.DOTALL)
     md_content = re.sub(r"\|(.+?)\|\n\|(?:-+\|)+\n(.+?)(?=\n\n|\Z)", convert_table_to_html, md_content, flags=re.DOTALL)
+    
     return markdown.markdown(md_content)
 
+
 def convert_table_to_html(match):
-    # Extract headers and rows
-    headers = [h.strip() for h in match.group(1).strip().split('|') if h.strip()]
-    rows = [
+    """
+    Convert Markdown table into HTML table format.
+    """
+    table_text = match.group(1) if "```" in match.group(0) else match.group(0)
+    rows = [row.strip() for row in table_text.strip().splitlines() if row.strip()]
+
+    if not rows:
+        return ""
+
+    headers = [cell.strip() for cell in rows[0].split('|') if cell.strip()]
+    data_rows = [
         [cell.strip() for cell in row.split('|') if cell.strip()]
-        for row in match.group(2).strip().splitlines()
+        for row in rows[2:]  # Skip header separator line
     ]
-    
+
     # Build HTML table
-    html_table = '<table><thead><tr>'
-    html_table += ''.join(f'<th>{header}</th>' for header in headers)
+    html_table = '<table style="width:100%; border-collapse:collapse; border:1px solid #ddd;">'
+    html_table += '<thead style="background-color:#f2f2f2;"><tr>'
+    html_table += ''.join(f'<th style="padding:8px; text-align:left; border:1px solid #ddd;">{header}</th>' for header in headers)
     html_table += '</tr></thead><tbody>'
-    
-    for row in rows:
-        if len(row) != len(headers):
-            # Pad rows with empty cells to match headers
-            row += [''] * (len(headers) - len(row))
-        html_table += '<tr>' + ''.join(f'<td>{cell}</td>' for cell in row) + '</tr>'
-    
+
+    for data_row in data_rows:
+        html_table += '<tr>'
+        html_table += ''.join(f'<td style="padding:8px; text-align:left; border:1px solid #ddd;">{cell}</td>' for cell in data_row)
+        html_table += '</tr>'
+
     html_table += '</tbody></table>'
     return html_table
+
 
 
 # Estimation box
@@ -136,14 +148,10 @@ def estimate_analysis(num_pages):
 estimator_container = st.container(border=True)
 
 with estimator_container:
-    # estimation_progress_bar = st.empty()
     if uploaded_file is not None:
         st.session_state.pdf_bytes = uploaded_file.read()
         
-        try:
-            # estimation_progress_bar.progress(10, text="Calculating number of pages...")
-
-    
+        try:            
             with st.spinner("Estimation in progress..."):
                 # Read PDF and calculate number of pages
                 pdf_reader = PdfReader(io.BytesIO(st.session_state.pdf_bytes))
@@ -154,25 +162,28 @@ with estimator_container:
                     
                 estimated_time, estimated_cost = estimate_analysis(num_pages)
 
-            # estimation_progress_bar.progress(50, text="Estimation in progress...")
-            # estimated_time, estimated_cost = estimate_analysis(num_pages)
-            # estimation_progress_bar.progress(100, text="Estimation complete.")
-
-
             col1, col2 = st.columns(2)
             with col1:
-                st.metric(f"Estimated Time for {num_pages} page(s)", estimated_time,
-                        help="Includes page analysis but excludes summary generation")
+                if num_pages == 1:
+                    st.metric(f"Estimated Time for {num_pages} page", estimated_time,
+                            help="Includes page analysis but excludes summary generation")
+                else:
+                    st.metric(f"Estimated Time for {num_pages} pages", estimated_time,
+                            help="Includes page analysis but excludes summary generation")   
+                      
             with col2:
-                st.metric(f"Estimated Cost for {num_pages} page(s)", estimated_cost,
-                        help="Based on API usage and complexity")
+                if num_pages == 1:
+                    st.metric(f"Estimated Cost for {num_pages} page", estimated_cost,
+                            help="Based on API usage and complexity")
+                else:
+                    st.metric(f"Estimated Cost for {num_pages} pages", estimated_cost,
+                            help="Based on API usage and complexity")    
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
     else:
         
         estimated_time, estimated_cost = estimate_analysis(1)
-        # st.success("Estimation for 1 page")
 
         col1, col2 = st.columns(2)
         with col1:
@@ -250,8 +261,44 @@ st.markdown(
 
 with col2:
     run_analysis = st.button("Run Analysis")
+
+
+
+# Check if there is a generated report in the session state and display it
+if "output_pdf" in st.session_state and st.session_state.output_pdf:
+    st.success("Report generated successfully!")
+
+    # Display Markdown content
+    with st.expander("🔍 Show Report", expanded=False):
+        if "md_content" in st.session_state and st.session_state.md_content:
+            st.markdown(st.session_state.md_content, unsafe_allow_html=True)
+        else:
+            st.write("No output available. Please run the analysis.")
+
+    with st.expander("🔍 Show Markdown", expanded=False):
+        if st.session_state.get("md_content"):
+            st.code(st.session_state.md_content)
+        else:
+            st.write("No output available. Please run the analysis.")         
+        
+
+    st.download_button(
+        "📄 Download Report",
+        data=open(st.session_state.output_pdf, "rb"),
+        file_name=f"{st.session_state.get('report_name', 'Dashboard Analysis')} - {st.session_state.get('client_name', '')}.pdf"
+        if st.session_state.get('client_name') else f"{st.session_state.get('report_name', 'Dashboard Analysis')}.pdf"
+    )
     
+    
+
 if run_analysis:
+    # Reset session state variables to clear previous outputs
+    st.session_state.output_pdf = None
+    st.session_state.md_content = None
+    st.session_state.report_name = None
+    st.session_state.client_name = None
+
+
     if "pdf_bytes" not in st.session_state:
         st.error("Please upload a PDF file before launching analysis.")
         st.stop()
@@ -306,11 +353,20 @@ if run_analysis:
                     
             Report Type: {report_type}
             Emoji Usage: {'Enabled' if add_emoji else 'Disabled'}
-            Build tables if needed
-
+        
             {f'Analysis Example: {analysis_example}' if analysis_example else ''}
 
             {f'This is the first page of a Looker Studio report. Please extract the following and display as follows: Client Name: ... - Report Name: .... If either of these is not clearly provided, mention that it is unavailable.' if i == 1 else ''}
+
+            ### Formatting:
+            - Please, write the report using markdown.
+            - Avoid using number lists unless you want to show a step by step process (rarely used).
+            - If using bullet points, use - instead of *
+            - Use this template to build tables:
+            | Provider | Transactions | Revenue Share |
+            |----------|-------------|---------------|
+            | Makecommerce | 7,548 (96%) | 678.45K € (94%) |
+            | Inbank | <1% | <1% |
 
             Please focus on key insights, trends, and notable information.
             """
@@ -372,11 +428,20 @@ if run_analysis:
 
         Report Type: {report_type}
         Emoji Usage: {'Enabled' if add_emoji else 'Disabled'}
-        Build tables if needed
         
         Provide a comprehensive overview that captures key insights across all pages.
-        Please, write the report using markdown.
-        Avoid using number lists unless you want to show a step by step process (rarely used).
+    
+        ### Formatting:
+        - Please, write the report using markdown.
+        - Avoid using number lists unless you want to show a step by step process (rarely used).
+        - If using bullet points, use - instead of *
+        - Use this template to build tables:
+        | Provider | Transactions | Revenue Share |
+        |----------|-------------|---------------|
+        | Makecommerce | 7,548 (96%) | 678.45K € (94%) |
+        | Inbank | <1% | <1% |
+
+
         """
 
         final_analysis_payload = {
@@ -487,6 +552,8 @@ if run_analysis:
                     }}
                     li {{
                         margin-bottom: 5px;
+                        font-size: 12px;
+
                     }}
                     strong {{
                         color: #10132C;
@@ -589,20 +656,52 @@ if run_analysis:
             # Save results to session state
             st.session_state.md_content = md_content
             st.session_state.output_pdf = output_pdf
-            
-            
-            # Notify user
+            st.session_state.report_name = report_name
+            st.session_state.client_name = client_name
+
+    
+    
+            # Notify user and display outputs
             st.write('\n\n')
             st.success("Report generated successfully!")
-            st.download_button("📄 Download Report", data=open(st.session_state.output_pdf, "rb"), file_name=f"{report_name} - {client_name}.pdf" if client_name else f"{report_name}.pdf")
+                # st.download_button(
+                    # "📄 Download Report",
+                    # data=open(st.session_state.output_pdf, "rb"),
+                    # file_name=f"{st.session_state.get('report_name', 'Dashboard Analysis')} - {st.session_state.get('client_name', '')}.pdf"
+                    # if st.session_state.get('client_name') else f"{st.session_state.get('report_name', 'Dashboard Analysis')}.pdf"
+                # )
+
+            # Display Markdown content
+            with st.expander("🔍 Show Report", expanded=False):
+                if st.session_state.get("md_content"):
+                    st.markdown(st.session_state.md_content, unsafe_allow_html=True)
+                else:
+                    st.write("No output available. Please run the analysis.")
+                    
+            with st.expander("🔍 Show Markdown", expanded=False):
+                if st.session_state.get("md_content"):
+                    st.code(st.session_state.md_content)
+                else:
+                    st.write("No output available. Please run the analysis.")         
+                    
+            st.download_button(
+                "📄 Download Report",
+                data=open(st.session_state.output_pdf, "rb"),
+                file_name=f"{report_name} - {client_name}.pdf" if client_name else f"{report_name}.pdf"
+            )
+            
+            # Notify user
+            # st.write('\n\n')
+            # st.success("Report generated successfully!")
+            # st.download_button("📄 Download Report", data=open(st.session_state.output_pdf, "rb"), file_name=f"{report_name} - {client_name}.pdf" if client_name else f"{report_name}.pdf")
 
             # Final expander to show Markdown output
-            with st.expander("🔍 Show Report", expanded=False):
-                if run_analysis:
-                    if st.session_state.md_content:
-                        st.markdown(st.session_state.md_content, unsafe_allow_html=True)
-                    else:
-                        st.write("No output available. Please run the analysis.")
+            # with st.expander("🔍 Show Report", expanded=False):
+                # if run_analysis:
+                    # if st.session_state.md_content:
+                        # st.markdown(st.session_state.md_content, unsafe_allow_html=True)
+                    # else:
+                        # st.write("No output available. Please run the analysis.")
 
     except Exception as e:
         st.error(f"An error occurred: {e}")
