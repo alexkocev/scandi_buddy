@@ -1,9 +1,11 @@
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: scandiweb-buddy
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
@@ -20,10 +22,5 @@ spec:
                 name: scandiweb-buddy
                 port:
                   number: 80
-          - path: /*
-            pathType: Prefix
-            backend:
-              service:
-                name: scandiweb-buddy
-                port:
-                  number: 80
+
+
