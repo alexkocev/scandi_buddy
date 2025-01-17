@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: scandiweb-buddy
-          image: core.harbor.svc.cluster.eu-west-1:8443/scandiweb-buddy/app:latest
+          image: 536697258217.dkr.ecr.eu-west-1.amazonaws.com/github/readymage-internal/scandiweb-buddy:latest 
           imagePullPolicy: Always
           envFrom:
             - secretRef:
