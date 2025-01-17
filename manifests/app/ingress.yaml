@@ -1,24 +1,26 @@
-
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: scandiweb-buddy
   annotations:
-    # Only if you want to enforce HTTPS. This ensures http:// is redirected to https://
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
         - buddytools.scandiweb.com
-      # If you have TLS secrets, reference them here:
-      # secretName: your-tls-secret
   rules:
     - host: buddytools.scandiweb.com
       http:
         paths:
-          - path: "/"
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: scandiweb-buddy
+                port:
+                  number: 80
+          - path: /*
             pathType: Prefix
             backend:
               service:
