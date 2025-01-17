@@ -175,7 +175,7 @@ page_1 = st.Page(
     title="Dashboard Analysis",
     icon=":material/bar_chart:",
     default=False
-)
+    )
 page_2 = st.Page(
     os.path.join(app_pages_dir, "tracking_report.py"),
     title="Tracking Report",

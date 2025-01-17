@@ -21,3 +21,9 @@ Alex_note.md
 
 # Ignore everything in the .data directory
 data/*
+
+
+
+# Ignore all Jupyter notebooks whose names start with "test"
+test_*.py
+test_*.ipynb
