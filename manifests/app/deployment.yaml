@@ -18,6 +18,11 @@ spec:
     spec:
       containers:
         - name: scandiweb-buddy
+
+          #
+          command: ["streamlit", "run", "main.py", "--server.baseUrlPath=/"]
+          # 
+          
           image: 536697258217.dkr.ecr.eu-west-1.amazonaws.com/github/readymage-internal/scandiweb-buddy:latest 
           imagePullPolicy: Always
           envFrom:
