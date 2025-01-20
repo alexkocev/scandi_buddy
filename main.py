@@ -203,50 +203,6 @@ page_4 = st.Page(
 
 
 
-page_5 = st.Page(
-    os.path.join(app_pages_dir, "ai_website_improvement_suggestions.py"),
-    title="Website Suggestions 🚧",
-    icon=":material/lightbulb:",  # Representing suggestions or ideas
-    default=False
-)
-page_6 = st.Page(
-    os.path.join(app_pages_dir, "dashboard_generator.py"),
-    title="Dashboard Generator 🚧",
-    icon=":material/apps:",  # Representing tools or dashboards
-    default=False
-)
-page_7 = st.Page(
-    os.path.join(app_pages_dir, "dashboard_description_creation.py"),
-    title="Dashboard Description 🚧",
-    icon=":material/text_snippet:",  # Representing content creation
-    default=False
-)
-page_8 = st.Page(
-    os.path.join(app_pages_dir, "data_benchmarking.py"),
-    title="Data Benchmarking 🚧",
-    icon=":material/equalizer:",  # Representing comparisons and benchmarks
-    default=False
-)
-page_9 = st.Page(
-    os.path.join(app_pages_dir, "domain_explorer.py"),
-    title="Domain Explorer 🚧",
-    icon=":material/search:",  # Representing exploration
-    default=False
-)
-page_10 = st.Page(
-    os.path.join(app_pages_dir, "monitoring_system.py"),
-    title="System Monitoring 🚧",
-    icon=":material/autorenew:",  # Representing observation
-    default=False
-)
-
-page_11 = st.Page(
-    os.path.join(app_pages_dir, "ai_user_testing.py"),
-    title="AI User Testing 🚧",
-    icon=":material/robot:",  # Representing AI testing
-    default=False
-)
-
 
 
 
@@ -278,7 +234,7 @@ page_dict = {}
 
 # Populate user-accessible pages
 if st.session_state.role in ["user", "admin"]:
-    page_dict["User"] = [page_1, page_2, page_3, page_4, page_5, page_6, page_7, page_8, page_9, page_10, page_11]
+    page_dict["User"] = [page_1, page_2, page_3, page_4]
 
 # Create the "Account" group with Home, Admin, and Log Out
 navigation_items = {}
