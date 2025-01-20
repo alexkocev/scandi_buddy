@@ -16,7 +16,7 @@ spec:
       http:
         paths:
           - path: /
-            pathType: Prefix #ImplementationSpecific
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: scandiweb-buddy
