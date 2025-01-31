@@ -3,6 +3,8 @@
 
 ScandiBuddy is a web application designed to streamline and enhance the user experience for Scandinavian users, specifically tailored for the Scandiweb growth team. This README provides instructions on setting up, deploying, and running the application.
 
+![alt text](images/screenshot.png)
+
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
@@ -15,7 +17,7 @@ Before you begin, ensure you have met the following requirements:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/scandi_buddy.git
+    git clone https://github.com/alexkocev/scandi_buddy.git
     cd scandi_buddy
     ```
 
